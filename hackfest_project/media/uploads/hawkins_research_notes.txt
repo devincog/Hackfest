@@ -1,0 +1,55 @@
+Mr. Clarke's Research Notes — Wireless Signal Interference in the Upside Down
+
+CHAPTER 1: Electromagnetic Anomalies
+
+The Upside Down appears to generate its own electromagnetic field that directly interferes with
+standard radio communications. Observations from the Hawkins National Laboratory indicate that
+proximity to dimensional rifts causes significant signal degradation in the 2.4 GHz and 5 GHz bands.
+
+Key findings:
+- CB radio transmissions become unreliable within 200 meters of a known gate location
+- AM radio frequencies below 1 MHz show paradoxical signal amplification near rifts
+- The interference pattern follows an inverse-square law relative to rift proximity
+
+CHAPTER 2: The Demogorgon Effect on Electronics
+
+Biological entities from the Upside Down emit a localized EMP-like field. This has been observed
+to disable flashlights, car batteries, and telephone switching equipment. The field strength
+appears proportional to the size and aggressiveness of the creature.
+
+Laboratory measurements suggest:
+- Field strength of approximately 50-100 V/m at 1 meter distance
+- Pulse duration of 200-500 milliseconds
+- Frequency spectrum centered around 60 Hz with harmonics extending to 10 kHz
+
+CHAPTER 3: Communication Through Dimensions
+
+Joyce Byers demonstrated that low-powered electrical circuits (specifically Christmas lights)
+can serve as a rudimentary communication channel between dimensions. This suggests that the
+dimensional barrier is permeable to low-frequency electromagnetic signals.
+
+Theoretical implications:
+- The barrier acts as a low-pass filter with a cutoff frequency around 100 Hz
+- Modulated DC signals can penetrate where AC signals cannot
+- Biological neural electrical activity (approximately 1-100 Hz) can also cross the barrier
+
+CHAPTER 4: Protecting Equipment
+
+Based on field observations, the following countermeasures have proven effective:
+1. Faraday cage enclosures for sensitive electronics
+2. Grounding systems using copper rods driven at least 8 feet into the earth
+3. Surge protectors rated for at least 1000 joules
+4. Backup power systems with isolated battery banks
+5. Shielded coaxial cables for all signal transmission
+
+CHAPTER 5: The Mind Flayer's Network
+
+The Mind Flayer appears to utilize a biological neural network that operates on principles
+similar to but distinct from electromagnetic radiation. This "psychic network" operates on
+frequencies below 1 Hz and can penetrate all known shielding materials.
+
+Properties of the psychic network:
+- Operates in the 0.01 to 0.5 Hz range (infra-low frequency)
+- Cannot be blocked by conventional Faraday cages
+- Signal strength does not diminish with distance in the conventional sense
+- Appears to use quantum entanglement-like phenomena for instantaneous communication

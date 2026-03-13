@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mr. Clarke's Briefing Generator</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="upside-down-overlay"></div>
+    <div class="particles" id="particles"></div>
+
+    <main class="container">
+        <header class="header">
+            <h1 class="title">
+                <span class="mr-clarkes">MR. CLARKE'S</span><br>
+                <span class="briefing-gen">AUTOMATED BRIEFING GENERATOR</span>
+            </h1>
+            <p class="subtitle">PROJECT AV CLUB // SECURE CONNECTION ESTABLISHED</p>
+        </header>
+
+        <section class="interface-panel">
+            <div class="panel-header">
+                <div class="lights">
+                    <span class="light red"></span>
+                    <span class="light yellow"></span>
+                    <span class="light green"></span>
+                </div>
+                <span class="terminal-title">TERMINAL // HAWKINS_LAB</span>
+            </div>
+            
+            <div class="panel-body">
+                <div class="upload-section">
+                    <h3>1. INGEST DATA</h3>
+                    <div class="drop-zone" id="drop-zone">
+                        <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="17 8 12 3 7 8"></polyline>
+                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                        </svg>
+                        <p>Drag & Drop transmission logs (PDF/TXT) or <span class="browse-btn">Browse files</span></p>
+                        <input type="file" id="file-input" multiple accept=".pdf,.txt" hidden>
+                    </div>
+                    <ul class="file-list" id="file-list"></ul>
+                </div>
+
+                <div class="query-section">
+                    <h3>2. INITIATE QUERY</h3>
+                    <div class="input-wrapper">
+                        <span class="prompt-arrow">></span>
+                        <textarea id="query-input" placeholder="e.g. Explain wireless signal interference in the Upside Down..." rows="3"></textarea>
+                    </div>
+                </div>
+
+                <div class="action-section">
+                    <button id="generate-btn" class="hawkins-btn">
+                        <span class="btn-content">GENERATE BRIEFING DECK</span>
+                        <span class="btn-glitch"></span>
+                    </button>
+                    <div class="status-indicator" id="status-indicator">
+                        <span class="status-text">AWAITING INPUT...</span>
+                        <span class="loader hidden"></span>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="output-panel hidden" id="output-panel">
+            <div class="panel-header">
+                <span class="terminal-title">PRESENTATION RENDERER</span>
+            </div>
+            <div class="panel-body">
+                <div class="preview-container">
+                    <iframe id="presentation-preview" title="Presentation Preview"></iframe>
+                </div>
+                <div class="export-actions">
+                    <button class="secondary-btn" id="export-html">
+                        VIEW IN BROWSER
+                    </button>
+                    <button class="secondary-btn" id="export-pptx">
+                        EXPORT .PPTX
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
