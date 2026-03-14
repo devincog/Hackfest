@@ -4,7 +4,6 @@ Handles parsing PDFs/TXT files, chunking text, generating embeddings,
 and storing them in MongoDB Atlas Vector Store via LlamaIndex.
 """
 import os
-import fitz  # PyMuPDF
 from pathlib import Path
 
 from llama_index.core import Document as LlamaDocument
@@ -14,6 +13,7 @@ from llama_index.core.embeddings import resolve_embed_model
 from llama_index.vector_stores.mongodb import MongoDBAtlasVectorSearch
 
 from django.conf import settings
+from api.document_loaders import extract_text
 
 
 # Configure LlamaIndex to use local HuggingFace embeddings (not OpenAI)
@@ -40,33 +40,6 @@ def get_vector_store():
         collection_name=COLLECTION_NAME,
         vector_index_name=VECTOR_INDEX_NAME,
     )
-
-
-def extract_text_from_pdf(file_path: str) -> str:
-    """Extract all text from a PDF using PyMuPDF."""
-    doc = fitz.open(file_path)
-    text = ""
-    for page in doc:
-        text += page.get_text()
-    doc.close()
-    return text
-
-
-def extract_text_from_txt(file_path: str) -> str:
-    """Read plain text file."""
-    with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
-        return f.read()
-
-
-def extract_text(file_path: str) -> str:
-    """Auto-detect file type and extract text."""
-    ext = Path(file_path).suffix.lower()
-    if ext == ".pdf":
-        return extract_text_from_pdf(file_path)
-    elif ext == ".txt":
-        return extract_text_from_txt(file_path)
-    else:
-        raise ValueError(f"Unsupported file type: {ext}")
 
 
 def ingest_documents(file_paths: list[str], project_id: str) -> dict:

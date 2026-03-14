@@ -87,7 +87,7 @@ print("=" * 60)
 print("TEST 5: Reveal.js HTML Rendering")
 print("=" * 60)
 try:
-    from api.services.generation_service import render_revealjs_html
+    from api.exporters.html_exporter import render_revealjs_html
     if schema:
         html = render_revealjs_html(schema)
         print(f"Generated HTML: {len(html)} characters")

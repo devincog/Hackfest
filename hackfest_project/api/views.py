@@ -13,7 +13,7 @@ from api.models import Project, Document
 from api.serializers import UploadSerializer, GenerateSerializer, UpdateSerializer
 from api.services.ingest_service import ingest_documents
 from api.services.rag_service import generate_slide_schema
-from api.services.generation_service import render_revealjs_html
+from api.exporters.html_exporter import render_revealjs_html
 
 
 @api_view(["POST"])

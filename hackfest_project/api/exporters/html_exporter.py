@@ -1,6 +1,7 @@
 """
 Generation Engine — Layer 3
 Takes a slide_schema JSON and renders it into a Reveal.js HTML presentation.
+Moved from generation_service.py to follow modular export pattern.
 """
 
 
