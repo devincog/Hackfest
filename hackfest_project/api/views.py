@@ -3,7 +3,7 @@ API Views for the Automated Briefing Generator.
 """
 import os
 from django.conf import settings
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from rest_framework import status
 from rest_framework.decorators import api_view, parser_classes
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -12,8 +12,8 @@ from rest_framework.response import Response
 from api.models import Project, Document
 from api.serializers import UploadSerializer, GenerateSerializer, UpdateSerializer
 from api.services.ingest_service import ingest_documents
-from api.services.rag_service import generate_slide_schema
-from api.exporters.html_exporter import render_revealjs_html
+from api.services.rag_service import generate_slides_html
+from api.exporters.html_exporter import render_tailwind_html
 
 
 @api_view(["POST"])
@@ -71,6 +71,7 @@ def generate_presentation(request):
     """
     POST /api/generate/
     Generate a new presentation from uploaded documents + user query.
+    Returns raw Tailwind HTML slides.
     """
     serializer = GenerateSerializer(data=request.data)
     if not serializer.is_valid():
@@ -84,23 +85,24 @@ def generate_presentation(request):
     except Project.DoesNotExist:
         return Response({"error": "Project not found."}, status=status.HTTP_404_NOT_FOUND)
 
-    # Generate slide schema via RAG + LLM
+    # Generate Tailwind HTML slides via RAG + LLM
     try:
-        schema = generate_slide_schema(query, project_id)
+        slides_html = generate_slides_html(query, project_id)
     except Exception as e:
         return Response(
             {"error": f"Generation failed: {str(e)}"},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
 
-    # Save schema and query to project
-    project.slide_schema = schema
+    # Save the raw HTML and query to project
+    # We store the raw HTML string in slide_schema (reusing the field)
+    project.slide_schema = {"raw_html": slides_html}
     project.query = query
     project.save()
 
     return Response({
         "project_id": project_id,
-        "slide_schema": schema,
+        "slides_html": slides_html,
     })
 
 
@@ -108,8 +110,7 @@ def generate_presentation(request):
 def update_presentation(request):
     """
     POST /api/update/
-    Update an existing presentation. Animation Lock is active —
-    animations are preserved while content is updated.
+    Update an existing presentation. Layout is preserved while content changes.
     """
     serializer = UpdateSerializer(data=request.data)
     if not serializer.is_valid():
@@ -129,22 +130,24 @@ def update_presentation(request):
             status=status.HTTP_400_BAD_REQUEST,
         )
 
-    # Generate updated schema with Animation Lock
+    existing_html = project.slide_schema.get("raw_html", "")
+
+    # Generate updated slides with layout preservation
     try:
-        schema = generate_slide_schema(query, project_id, existing_schema=project.slide_schema)
+        slides_html = generate_slides_html(query, project_id, existing_html=existing_html)
     except Exception as e:
         return Response(
             {"error": f"Update failed: {str(e)}"},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
 
-    project.slide_schema = schema
+    project.slide_schema = {"raw_html": slides_html}
     project.query = query
     project.save()
 
     return Response({
         "project_id": project_id,
-        "slide_schema": schema,
+        "slides_html": slides_html,
     })
 
 
@@ -152,7 +155,7 @@ def update_presentation(request):
 def render_presentation(request, project_id):
     """
     GET /api/render/<project_id>/
-    Render the current slide_schema as a Reveal.js HTML presentation.
+    Render the presentation as a standalone Tailwind HTML page.
     """
     try:
         project = Project.objects.get(id=project_id)
@@ -165,7 +168,8 @@ def render_presentation(request, project_id):
             status=status.HTTP_400_BAD_REQUEST,
         )
 
-    html = render_revealjs_html(project.slide_schema)
+    raw_html = project.slide_schema.get("raw_html", "")
+    html = render_tailwind_html(raw_html)
     return HttpResponse(html, content_type="text/html")
 
 
@@ -173,7 +177,7 @@ def render_presentation(request, project_id):
 def get_project(request, project_id):
     """
     GET /api/project/<project_id>/
-    Get project details including the slide_schema.
+    Get project details including the slides HTML.
     """
     try:
         project = Project.objects.get(id=project_id)
@@ -182,11 +186,19 @@ def get_project(request, project_id):
 
     docs = Document.objects.filter(project=project).values("id", "filename", "is_processed", "uploaded_at")
 
+    # Return slides as an array split by SLIDE_BREAK
+    raw_html = ""
+    slides = []
+    if project.slide_schema:
+        raw_html = project.slide_schema.get("raw_html", "")
+        slides = [s.strip() for s in raw_html.split("<!-- SLIDE_BREAK -->") if s.strip()]
+
     return Response({
         "project_id": str(project.id),
         "name": project.name,
         "query": project.query,
-        "slide_schema": project.slide_schema,
+        "slides": slides,
+        "slides_count": len(slides),
         "documents": list(docs),
         "created_at": project.created_at,
         "updated_at": project.updated_at,

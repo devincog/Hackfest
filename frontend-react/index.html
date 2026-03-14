@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mr. Clarke's Briefing Generator</title>
+
+    <!-- Stranger Things Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS (Play CDN — no build step needed) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Theme CSS -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- React 18 from CDN -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+
+    <!-- Babel Standalone — compiles JSX in the browser -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+    <!-- Background Effects (same as original Stranger Things theme) -->
+    <div class="upside-down-overlay"></div>
+    <div class="particles" id="particles"></div>
+
+    <!-- React Mount Point -->
+    <div id="root"></div>
+
+    <!-- App Script (Babel compiles this JSX in-browser) -->
+    <script type="text/babel" src="app.jsx"></script>
+
+    <!-- Particle effect (vanilla JS, runs independently) -->
+    <script src="particles.js"></script>
+</body>
+</html>

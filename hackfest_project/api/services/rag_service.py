@@ -1,21 +1,18 @@
 """
 RAG Agent Service — Layer 2
 Uses LlamaIndex to retrieve relevant chunks from MongoDB Atlas,
-then calls Groq LLM to generate a structured SlideDeck JSON.
+then calls Groq LLM to generate Tailwind HTML presentation slides.
 """
-import json
 import os
 
 from llama_index.core import VectorStoreIndex
 from llama_index.core import StorageContext
 from llama_index.core.llms import ChatMessage, MessageRole
-from llama_index.llms.groq import Groq
 
 from django.conf import settings
 
-from api.schemas import SlideDeck, Slide, SlideElement, AnimationType, TransitionType
 from api.services.ingest_service import get_vector_store
-from api.prompts import SLIDE_GENERATION_SYSTEM_PROMPT, UPDATE_MODE_INSTRUCTION
+from api.prompts import SLIDE_GENERATION_SYSTEM_PROMPT, HTML_EDIT_SYSTEM_PROMPT
 from api.llm_client import get_llm
 
 
@@ -42,16 +39,16 @@ def retrieve_context(query: str, project_id: str, top_k: int = 10) -> list[str]:
     return chunks
 
 
-def generate_slide_schema(query: str, project_id: str, existing_schema: dict | None = None) -> dict:
+def generate_slides_html(query: str, project_id: str, existing_html: str | None = None) -> str:
     """
     Full RAG pipeline:
     1. Retrieve relevant chunks from the vector store
     2. Build a prompt with the context
-    3. Call Groq LLM to generate structured slide JSON
-    4. Validate with Pydantic and return
+    3. Call Groq LLM to generate Tailwind HTML slides
+    4. Return the raw HTML string (no JSON parsing)
 
-    If existing_schema is passed, the LLM is instructed to UPDATE
-    content while preserving animation metadata (Animation Lock).
+    If existing_html is passed, the LLM is instructed to UPDATE
+    content while preserving the layout/design.
     """
     # Step 1: Retrieve context
     chunks = retrieve_context(query, project_id)
@@ -64,45 +61,37 @@ def generate_slide_schema(query: str, project_id: str, existing_schema: dict | N
 USER QUERY: {query}
 """
 
-    # If updating an existing schema, add animation lock instructions
-    if existing_schema:
+    # Step 3: Choose system prompt based on mode
+    if existing_html:
+        system_prompt = HTML_EDIT_SYSTEM_PROMPT
         user_prompt += f"""
 
-EXISTING PRESENTATION (UPDATE THIS):
-{json.dumps(existing_schema, indent=2)}
+EXISTING PRESENTATION HTML (UPDATE THIS):
+{existing_html}
 
-IMPORTANT: You are UPDATING this existing presentation. 
-- Modify the text content based on the new query/context.
-- PRESERVE all animation types, animation delays, and transitions EXACTLY as they are.
-- Only change animations if the user explicitly asks for animation changes.
-- You may add or remove slides if needed, but keep existing slide animations intact.
+Update the content based on the new query and context above.
+Keep the same visual design and layout structure.
 """
+    else:
+        system_prompt = SLIDE_GENERATION_SYSTEM_PROMPT
+        user_prompt += "\n\nGenerate the presentation slides now:"
 
-    user_prompt += "\n\nGenerate the presentation JSON now:"
-
-    # Step 3: Call Groq LLM
+    # Step 4: Call Groq LLM
     llm = get_llm()
-    sys_prompt = SLIDE_GENERATION_SYSTEM_PROMPT if not existing_schema else SLIDE_GENERATION_SYSTEM_PROMPT + UPDATE_MODE_INSTRUCTION
-
     messages = [
-        ChatMessage(role=MessageRole.SYSTEM, content=sys_prompt),
+        ChatMessage(role=MessageRole.SYSTEM, content=system_prompt),
         ChatMessage(role=MessageRole.USER, content=user_prompt),
     ]
     response = llm.chat(messages)
 
-    # Step 4: Parse and validate
+    # Step 5: Clean up response
     response_text = response.message.content.strip()
 
-    # Clean up if the LLM wraps in markdown code blocks
+    # Remove markdown code fences if the LLM wraps them
     if response_text.startswith("```"):
         response_text = response_text.split("\n", 1)[1]
         if response_text.endswith("```"):
             response_text = response_text[:-3]
         response_text = response_text.strip()
 
-    raw_json = json.loads(response_text)
-
-    # Validate with Pydantic
-    deck = SlideDeck(**raw_json)
-
-    return deck.model_dump()
+    return response_text
